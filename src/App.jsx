@@ -1,15 +1,42 @@
+import { useState, useEffect } from "react";
 import UpdateItem from "./components/UpdateItem";
 
-// use the following link to get the data
-// `/doors` will give you all the doors, to get a specific door use `/doors/1`.
 const API_URI = `http://${import.meta.env.VITE_API_URI}/doors`;
 
 function App() {
-  // Get the existing item from the server
-  // const [item, setItem] = useState(null);
-  // pass the item to UpdateItem as a prop
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  return <UpdateItem />;
+  useEffect(() => {
+    // Fetch specific door (e.g., door with id 1)
+    fetch(`${API_URI}/1`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch the item.");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setItem(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <div>
+      <h1>Update a Door</h1>
+
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {item && <UpdateItem item={item} />}
+    </div>
+  );
 }
 
 export default App;
+
